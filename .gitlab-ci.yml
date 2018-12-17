@@ -1,0 +1,58 @@
+---
+stages:
+  - build
+  - docker
+  - acceptance
+
+remove_me:
+  stage: build
+  script:
+  - >
+     echo If you can see this you know that gitlab-ci is running.  You should
+     uncomment the sections that enable building the docker image and running
+     the acceptance tests.
+     Change any file as necessary to make tests pass in your language of
+     choice.  But be mindful that we will only accept challenges that are
+     passing acceptance.  Good luck!
+
+## Uncomment the following sections to enable docker, image building and
+## acceptance
+
+# build:
+#   stage: build
+#   image: # Add an image to build your service
+#   artifacts:
+#     paths:
+#       - bin/
+#   script:
+#     - echo do something to build the binary or whatever
+
+# build_image:
+#   stage: docker
+#   image: docker:latest
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#     DOCKER_TLS_CERTDIR: ""
+#   services:
+#     - docker:dind
+#   script:
+#     - echo As a helper here you have a sample of how to build and push a \
+#     docker image to the provided gitlab registry.
+#     - echo ${CI_JOB_TOKEN} | docker login --password-stdin -u ${CI_REGISTRY_USER} ${CI_REGISTRY}
+#     - docker build . -t ${CI_REGISTRY_IMAGE}:latest
+#     - docker push ${CI_REGISTRY_IMAGE}:latest
+
+## Uncomment the acceptance step and do not remove or edit, this step is
+## required for us to accept your submission!
+
+# acceptance:
+#   image: cabify/challenge:latest
+#   stage: acceptance
+#   only: 
+#     - master
+#   dependencies: []
+#   services:
+#     - name: ${CI_REGISTRY_IMAGE}:latest
+#       alias: pooling
+#   script:
+#     - /harness --address http://pooling:9091 acceptance
