@@ -31,7 +31,8 @@ module.exports = class Database {
     const query = {
       journey_id:
         {
-          $exists: false
+          $exists: false,
+          locked: false,
         },
       seats:
         {
@@ -62,7 +63,7 @@ module.exports = class Database {
   async createCars({ logger }, cars) {
     const dbClient = await mongoClient.connect(this.config.mongo.url, { useUnifiedTopology: true, useNewUrlParser: true });
     await dbClient.db('carPooling').collection('cars').deleteMany({});
-    await dbClient.db('carPooling').collection('cars').insertMany(cars);
+    await dbClient.db('carPooling').collection('cars').insertMany(cars.map((car) => {return Object.assign({}, car, {locked: false})}));
     dbClient.close();
     logger.info('End inserting cars list into database');
   }
