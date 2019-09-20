@@ -41,13 +41,12 @@ module.exports = class Service {
       await this._checkIfCanAssignACar({logger}, journeyCreated);
     } catch (err) {
       logger.error(err.message);
-      // TODO eliminar el journey recien creado y dejar el car como estaba en un principio (availableCar)
       throw new Error('Error inserting a new Journey');
     }
   }
 
   /**
-   * Retries all journeys without car assigned, this will happen when a journey has finished by a dropoff.
+   * Retries all journeys without car assigned, this will happen when a journey has finished by a dropOff.
    * @param {*} param0
    */
   async retryJourneysWithoutCarsAssigned ({logger}) {
@@ -81,6 +80,13 @@ module.exports = class Service {
     }
   }
 
+  /**
+   * Drops off an existing journey, after drop off update the car with the new available seats and journeys and also
+   * try to retry the journeys without car assigned to check if there is now any car available for these journeys.
+   * @param logger
+   * @param groupId
+   * @returns {Promise<void>}
+   */
   async dropOff ({logger}, groupId) {
     const journey = await this.database.findJourneyById({logger}, groupId);
     if (journey) {

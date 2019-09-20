@@ -7,6 +7,12 @@ module.exports = class Database {
 
   }
 
+  /**
+   * Creates a new journey into database, before it assign to the journey a uuid
+   * @param logger
+   * @param journey
+   * @returns {Promise<*|Object>}
+   */
   async createJourney ({logger}, journey) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -14,10 +20,16 @@ module.exports = class Database {
     const journeySaved = await dbClient.db('carPooling').collection('journeys')
       .insertOne(journeyWithProperUuid);
     dbClient.close();
-    logger.info('End inserting journey into database');
     return journeySaved.ops[0];
   }
 
+  /**
+   * Update a given journey.
+   * @param logger
+   * @param journey
+   * @param carId
+   * @returns {Promise<*>}
+   */
   async updateJourney ({logger}, journey, carId) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -26,11 +38,15 @@ module.exports = class Database {
     const journeySaved = await dbClient.db('carPooling').collection('journeys')
       .findOneAndUpdate(query, update);
     dbClient.close();
-    logger.info('End updating journey into database');
     return journeySaved.value;
 
   }
 
+  /**
+   * Return all journeys that have not any car assigned.
+   * @param logger
+   * @returns {Promise<void>}
+   */
   async findJourneysWithoutCarAssigned ({logger}) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -107,6 +123,15 @@ module.exports = class Database {
     return car.value;
   }
 
+  /**
+   * Update a car for a new journey, update its available seats and add the journey to the journeys of the car.
+   * @param logger
+   * @param carId
+   * @param journeyId
+   * @param remainingSeats
+   * @param dropOff
+   * @returns {Promise<void>}
+   */
   async updateCarForJourney ({logger}, carId, journeyId, remainingSeats, dropOff) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -126,6 +151,12 @@ module.exports = class Database {
     dbClient.close();
   }
 
+  /**
+   * Create cars into database.
+   * @param logger
+   * @param cars
+   * @returns {Promise<void>}
+   */
   async createCars ({logger}, cars) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -133,7 +164,6 @@ module.exports = class Database {
     await dbClient.db('carPooling')
       .collection('cars').insertMany(cars.map((car) => Object.assign({}, car, {locked: false}, {id: uuid.v1()})));
     dbClient.close();
-    logger.info('End inserting cars list into database');
   }
 
 };

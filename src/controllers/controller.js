@@ -7,6 +7,7 @@ module.exports = class Controller {
   }
 
   async createJourney (req, res) {
+    logger.info('Post method');
     if (req.body === undefined || req.body === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
