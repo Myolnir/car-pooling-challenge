@@ -9,4 +9,6 @@ const controller = container.resolve('controller');
 router.get('/status', (req, res) => res.status(200).send());
 
 router.post('/journey', controller.createJourney.bind(controller));
+router.put('/cars', controller.createCars.bind(controller));
+
 module.exports = router;
