@@ -4,13 +4,29 @@ module.exports = class Service {
     this.database = database;
   }
 
+  /**
+   * We will create a new journey.
+   * We check if there are any car available for the number of people for the journey, if yes,
+   * we assign the car to this journey and
+   * @param logger
+   * @param journey
+   * @returns {Promise<void>}
+   */
   async createJourney ({logger}, journey) {
     try{
       const availableCar = await this.database.getAvailableCarForPeople({logger}, journey.people);
-      const journeySaved = await this.database.createJourney({ logger }, journey, availableCar);
-      await this.database.updateCarForJourney({logger}, availableCar.id, journeySaved);
+      if (availableCar) {
+        logger.debug('We have the car %s available for the journey', availableCar.id);
+        const journeySaved = await this.database.createJourney({ logger }, journey, availableCar.id);
+        const remainingSeats = availableCar.seats-journeySaved.people;
+        await this.database.updateCarForJourney({logger}, availableCar.id, journeySaved, remainingSeats);
+      } else{
+        logger.warn('We do not have any available car for the journey, we create the journey without assigned car');
+        await this.database.createJourney({ logger }, journey, null);
+      }
     } catch (err) {
       logger.error(err.message);
+      //TODO eliminar el journey recien creado y dejar el car como estaba en un principio (availableCar)
       throw new Error('Error inserting a new Journey');
     }
   }

@@ -6,10 +6,13 @@ module.exports = class Database {
 
   }
 
-  async createJourney({logger}, journey, {id}) {
+  async createJourney({logger}, journey, id) {
     const dbClient = await mongoClient.connect(this.config.mongo.url, { useUnifiedTopology: true, useNewUrlParser: true });
+    const data = id !== null
+      ? Object.assign({}, journey, {car_id: id, journey_initiated: new Date()})
+      : journey;
     const journeySaved = await dbClient.db('carPooling').collection('journeys')
-      .insertOne(Object.assign({}, journey, {car_id: id, journey_initiated: new Date()}));
+      .insertOne(data);
     dbClient.close();
     logger.info('End inserting journey into database');
     return journeySaved.ops[0];
@@ -22,22 +25,18 @@ module.exports = class Database {
   }
 
   /**
-   * Return the first available car with enough free seats for the journey and lock it to avoid another request gets the same car.
+   * Return the first available car with enough free seats for the journey that there is not locked.
    * @param {*} param0
    * @param {minimun number of seats available} seats
    */
   async getAvailableCarForPeople({logger}, seats) {
     const dbClient = await mongoClient.connect(this.config.mongo.url, { useUnifiedTopology: true, useNewUrlParser: true });
     const query = {
-      journey_id:
-        {
-          $exists: false,
-          locked: false,
-        },
-      seats:
-        {
-          $lte: seats
-        }
+      locked: false,
+      $and: [
+        {seats: {$ne: 0}},
+        {seats: {$gte: seats}},
+      ]
     };
     const update = {$set: {locked: true}};
     const car = await dbClient.db('carPooling').collection('cars').findOneAndUpdate(query, update);
@@ -45,16 +44,21 @@ module.exports = class Database {
     return car.value;
   }
 
-  async updateCarForJourney({logger}, carId, {id, journey_initiated}) {
+  async updateCarForJourney({logger}, carId, {id, journey_initiated}, remainingSeats) {
     const dbClient = await mongoClient.connect(this.config.mongo.url, { useUnifiedTopology: true, useNewUrlParser: true });
     const query = {
       id: carId,
     };
     const update = {
-        $set: {
+      $set: {
+        locked: false,
+        seats: remainingSeats,
+      },
+      $push: {
+        journeis: {
           journey_id: id,
-          journey_initiated,
         },
+      },
     };
     await dbClient.db('carPooling').collection('cars').findOneAndUpdate(query, update);
     dbClient.close();
