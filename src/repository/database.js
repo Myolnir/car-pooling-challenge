@@ -7,17 +7,36 @@ module.exports = class Database {
 
   }
 
-  async createJourney ({logger}, journey, id) {
-    const dbClient = await mongoClient.connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
+  async createJourney ({logger}, journey) {
+    const dbClient = await mongoClient
+      .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const journeyWithProperUuid = Object.assign({}, journey, {id: uuid.v1()});
-    const data = id !== null
-      ? Object.assign({}, journeyWithProperUuid, {car_id: id, journey_initiated: new Date()})
-      : journeyWithProperUuid;
     const journeySaved = await dbClient.db('carPooling').collection('journeys')
-      .insertOne(data);
+      .insertOne(journeyWithProperUuid);
     dbClient.close();
     logger.info('End inserting journey into database');
     return journeySaved.ops[0];
+  }
+
+  async updateJourney ({logger}, journey, carId) {
+    const dbClient = await mongoClient
+      .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
+    const query = {id: journey.id};
+    const update = {$set: {car_id: carId, journey_initiated: new Date()}};
+    const journeySaved = await dbClient.db('carPooling').collection('journeys')
+      .findOneAndUpdate(query, update);
+    logger.info('End updating journey into database');
+    return journeySaved.value;
+
+  }
+
+  async findJourneysWithoutCarAssigned ({logger}) {
+    const dbClient = await mongoClient
+      .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
+    const journeys = await dbClient.db('carPooling').collection('journeys').find().toArray();
+    dbClient.close();
+    return journeys;
+
   }
 
   /**
@@ -27,7 +46,8 @@ module.exports = class Database {
    * @returns {Promise<void>}
    */
   async findJourneyById ({logger}, id) {
-    const dbClient = await mongoClient.connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
+    const dbClient = await mongoClient
+      .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const journey = await dbClient.db('carPooling').collection('journeys').findOne({id});
     dbClient.close();
     return journey;
@@ -47,7 +67,11 @@ module.exports = class Database {
     return car;
   }
 
-
+  /**
+   * Delete one or all elements of journeys collection.
+   * @param {*} param0
+   * @param {*} id optional parameter if not informed we delete all data of journeis.
+   */
   async deleteJourney ({logger}, id) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
@@ -65,14 +89,15 @@ module.exports = class Database {
    * @param {*} param0
    * @param {minimun number of seats available} seats
    */
-  async getAvailableCarForPeople ({logger}, seats) {
+  async getAvailableCarForPeople ({logger}, neededSeats) {
+    logger.info(`Checking if is there any available car with ${neededSeats} seats`);
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const query = {
       locked: false,
       $and: [
         {seats: {$ne: 0}},
-        {seats: {$gte: seats}},
+        {seats: {$gte: neededSeats}},
       ],
     };
     const update = {$set: {locked: true}};

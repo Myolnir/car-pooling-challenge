@@ -5,10 +5,26 @@ function createNotFoundError (id) {
   error.code = httpStatusCodes.NOT_FOUND;
   return error;
 }
+
 module.exports = class Service {
   constructor ({config, database}) {
     this.config = config;
     this.database = database;
+  }
+
+  /**
+   * Private function that checks for a given journey if there is an available car, if yes, asign the car to the journey and update it.
+   * @param {*} param0
+   * @param {*} journey
+   */
+  async _checkIfCanAssignACar ({logger}, journey) {
+    const availableCar = await this.database.getAvailableCarForPeople({logger}, journey.people);
+    if (availableCar) {
+      logger.info(`We have the car ${availableCar.id} available for the journey`);
+      const journeySaved = await this.database.updateJourney({logger}, journey, availableCar.id);
+      const remainingSeats = availableCar.seats - journeySaved.people;
+      await this.database.updateCarForJourney({logger}, availableCar.id, journeySaved.id, remainingSeats, false);
+    }
   }
 
   /**
@@ -21,21 +37,25 @@ module.exports = class Service {
    */
   async createJourney ({logger}, journey) {
     try {
-      const availableCar = await this.database.getAvailableCarForPeople({logger}, journey.people);
-      if (availableCar) {
-        logger.debug('We have the car %s available for the journey', availableCar.id);
-        const journeySaved = await this.database.createJourney({logger}, journey, availableCar.id);
-        const remainingSeats = availableCar.seats - journeySaved.people;
-        await this.database.updateCarForJourney({logger}, availableCar.id, journeySaved.id, remainingSeats, false);
-      } else {
-        logger.warn('We do not have any available car for the journey, we create the journey without assigned car');
-        await this.database.createJourney({logger}, journey, null);
-      }
+      const journeyCreated = await this.database.createJourney({logger}, journey, null);
+      await this._checkIfCanAssignACar({logger}, journeyCreated);
     } catch (err) {
       logger.error(err.message);
       // TODO eliminar el journey recien creado y dejar el car como estaba en un principio (availableCar)
       throw new Error('Error inserting a new Journey');
     }
+  }
+
+  /**
+   * Retries all journeys without car assigned, this will happen when a journey has finished by a dropoff.
+   * @param {*} param0
+   */
+  async retryJourneysWithoutCarsAssigned ({logger}) {
+    const journeys = await this.database.findJourneysWithoutCarAssigned({logger});
+    for (const journey of journeys) {
+      await this._checkIfCanAssignACar({logger}, journey);
+    }
+
   }
 
   async createCars ({logger}, cars) {
