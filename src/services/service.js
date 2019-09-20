@@ -4,5 +4,12 @@ module.exports = class Service {
     this.database = database;
   }
 
-  //TODO service class
+  async createJourney ({logger}, journey) {
+    try{
+      await this.database.createJourney({ logger }, journey);  
+    } catch (err) {
+        throw new Error('Error inserting a new Journey');
+    }
+    
+  }
 };

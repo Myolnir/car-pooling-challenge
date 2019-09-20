@@ -6,9 +6,26 @@ module.exports = class Controller {
     this.service = service;
   }
 
-  async post (req, res) {
+  async createJourney (req, res) {
     logger.info('Post method');
-    // TODO 
+    if (req.body === undefined || req.body === null) {
+      res.status(httpStatusCodes.BAD_REQUEST);
+      res.send({
+        error: 'Payload is required and must be an object',
+      }).end();
+    }
+    try {
+      const journey = req.body;
+      await this.service.createJourney({ logger }, journey);
+      res.status(httpStatusCodes.OK);
+      res.send().end();
+    } catch (err) {
+      res.status(httpStatusCodes.BAD_REQUEST);
+      res.send({
+        error: err.message,
+      }).end();
+    }
+    
   }
 
 
