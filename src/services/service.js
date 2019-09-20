@@ -84,13 +84,13 @@ module.exports = class Service {
   async dropOff ({logger}, groupId) {
     const journey = await this.database.findJourneyById({logger}, groupId);
     if (journey) {
+      await this.database.deleteJourney({logger}, journey.id);
       if (journey.car_id) {
         const car = await this.database.findCarById({logger}, journey.car_id);
         const remainingSeats = car.seats + journey.people;
         await this.database.updateCarForJourney({logger}, car.id, journey.id, remainingSeats, true);
-        // llamo a funcion para reintentar los journeys que no tengan coche asignadi por si alguno puede ser recolocado
+        await this.retryJourneysWithoutCarsAssigned({logger});
       }
-      await this.database.deleteJourney({logger}, journey.id);
     } else {
       logger.error(`The journey with this id ${groupId} does not exists`);
       throw createNotFoundError(groupId);

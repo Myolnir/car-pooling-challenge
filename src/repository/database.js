@@ -25,6 +25,7 @@ module.exports = class Database {
     const update = {$set: {car_id: carId, journey_initiated: new Date()}};
     const journeySaved = await dbClient.db('carPooling').collection('journeys')
       .findOneAndUpdate(query, update);
+    dbClient.close();
     logger.info('End updating journey into database');
     return journeySaved.value;
 
