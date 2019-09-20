@@ -20,6 +20,7 @@ module.exports = class Controller {
       res.status(httpStatusCodes.OK);
       res.send().end();
     } catch (err) {
+      logger.error(err.message);
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
         error: err.message,
@@ -40,6 +41,7 @@ module.exports = class Controller {
       res.status(httpStatusCodes.OK);
       res.send().end();
     } catch (err) {
+      logger.error(err.message);
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
         error: err.message,
@@ -47,6 +49,30 @@ module.exports = class Controller {
     }
   }
 
+  async locateGroup(req, res) {
+    if (req.body === undefined || req.body === null || req.body.ID === undefined || req.body.ID === null) {
+      res.status(httpStatusCodes.BAD_REQUEST);
+      res.send({
+        error: 'Payload is required and must be an object',
+      }).end();
+    }
+    try {
+      const groupId = req.body.ID;
+      const car = await this.service.locateGroup({ logger }, groupId);
+      if (Object.keys(car).length === 0) {
+        res.status(httpStatusCodes.NO_CONTENT);
+      } else {
+        res.status(httpStatusCodes.OK);
+      }
+      res.send(car).end();
+    } catch (err) {
+      logger.error(err.message);
+      res.status(err.code);
+      res.send({
+        error: err.message,
+      }).end();
+    }
+  }
 
 
 };

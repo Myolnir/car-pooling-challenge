@@ -1,3 +1,4 @@
+const httpStatusCodes = require('http-status-codes');
 module.exports = class Service {
   constructor ({config, database}) {
     this.config = config;
@@ -39,5 +40,20 @@ module.exports = class Service {
       logger.error(err.message);
       throw new Error('Error inserting a new list of cars');
     }
+  }
+
+  async locateGroup ({logger}, groupId) {
+      const journey = await this.database.findJourneyById({logger}, groupId);
+      if (journey) {
+        if (journey.car_id) {
+          return await this.database.findCarById({logger}, journey.car_id);
+        }
+        return {};
+      } else {
+        logger.error(`The journey with this id ${groupId} does not exists`);
+        let error = new Error (`The journey with this id ${groupId} does not exists`);
+        error.code = httpStatusCodes.NOT_FOUND;
+        throw error;
+      }
   }
 };

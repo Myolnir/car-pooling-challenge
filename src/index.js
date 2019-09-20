@@ -5,11 +5,15 @@ const catalog = require('./routes/catalog');
 const container = require('./boot');
 const config = container.resolve('config');
 const logger = require('./util/logger');
+const bodyParser = require('body-parser');
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 app.use('/', catalog);
 
 // catch 404 and forward to error handler
