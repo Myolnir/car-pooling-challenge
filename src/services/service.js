@@ -6,9 +6,12 @@ module.exports = class Service {
 
   async createJourney ({logger}, journey) {
     try{
-      await this.database.createJourney({ logger }, journey);  
+      const availableCar = await this.database.getAvailableCarForPeople({logger}, journey.people);
+      const journeySaved = await this.database.createJourney({ logger }, journey, availableCar);
+      await this.database.updateCarForJourney({logger}, availableCar.id, journeySaved);
     } catch (err) {
-        throw new Error('Error inserting a new Journey');
+      logger.error(err.message);
+      throw new Error('Error inserting a new Journey');
     }
   }
 
