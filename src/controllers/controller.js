@@ -7,7 +7,6 @@ module.exports = class Controller {
   }
 
   async createJourney (req, res) {
-    logger.info('Post method');
     if (req.body === undefined || req.body === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
@@ -16,7 +15,7 @@ module.exports = class Controller {
     }
     try {
       const journey = req.body;
-      await this.service.createJourney({ logger }, journey);
+      await this.service.createJourney({logger}, journey);
       res.status(httpStatusCodes.OK);
       res.send().end();
     } catch (err) {
@@ -28,7 +27,7 @@ module.exports = class Controller {
     }
   }
 
-  async createCars(req, res) {
+  async createCars (req, res) {
     if (req.body === undefined || req.body === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
@@ -37,7 +36,7 @@ module.exports = class Controller {
     }
     try {
       const cars = req.body;
-      await this.service.createCars({ logger }, cars);
+      await this.service.createCars({logger}, cars);
       res.status(httpStatusCodes.OK);
       res.send().end();
     } catch (err) {
@@ -49,16 +48,16 @@ module.exports = class Controller {
     }
   }
 
-  async locateGroup(req, res) {
+  async locateGroup (req, res) {
     if (req.body === undefined || req.body === null || req.body.ID === undefined || req.body.ID === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
-        error: 'Payload is required and must be an object',
+        error: 'Payload is required and must be an object ',
       }).end();
     }
     try {
       const groupId = req.body.ID;
-      const car = await this.service.locateGroup({ logger }, groupId);
+      const car = await this.service.locateGroup({logger}, groupId);
       if (Object.keys(car).length === 0) {
         res.status(httpStatusCodes.NO_CONTENT);
       } else {
@@ -74,5 +73,25 @@ module.exports = class Controller {
     }
   }
 
+  async dropOff (req, res) {
+    if (req.body === undefined || req.body === null || req.body.ID === undefined || req.body.ID === null) {
+      res.status(httpStatusCodes.BAD_REQUEST);
+      res.send({
+        error: 'Payload is required and must be an object',
+      }).end();
+    }
+    try {
+      const groupId = req.body.ID;
+      await this.service.dropOff({logger}, groupId);
+      res.status(httpStatusCodes.NO_CONTENT);
+      res.send().end();
+    } catch (err) {
+      logger.error(err.message);
+      res.status(err.code);
+      res.send({
+        error: err.message,
+      }).end();
+    }
+  }
 
 };

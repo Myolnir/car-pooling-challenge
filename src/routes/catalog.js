@@ -13,4 +13,6 @@ router.put('/cars', controller.createCars.bind(controller));
 
 router.post('/locate', controller.locateGroup.bind(controller));
 
+router.post('/dropoff', controller.dropOff.bind(controller));
+
 module.exports = router;
