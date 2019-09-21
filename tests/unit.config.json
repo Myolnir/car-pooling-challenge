@@ -1,0 +1,28 @@
+{
+  "rootDir": "../",
+  "collectCoverageFrom": [
+    "lib/**/*.js",
+    "!lib/**/*.test.js",
+    "!lib/index.js"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "statements": 0,
+      "branches": 0,
+      "functions": 0,
+      "lines": 0
+    }
+  },
+  "coverageReporters": [
+    "json",
+    "lcov",
+    "text",
+    "text-summary",
+    "html",
+    "json-summary"
+  ],
+  "moduleDirectories": [
+    "node_modules"
+  ],
+  "testRegex": "tests/.*\\.test\\.js$"
+}
