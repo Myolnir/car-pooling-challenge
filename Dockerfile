@@ -1,12 +1,19 @@
-FROM alpine:3.8
+FROM node:10
 
-# This Dockerfile is optimized for go binaries, change it as much as necessary
-# for your language of choice.
+# Create app directory
+WORKDIR /usr/src/app
 
-RUN apk --no-cache add ca-certificates=20190108-r0 libc6-compat=1.1.19-r10
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY package*.json ./
 
-EXPOSE 9091
+RUN npm install
+# If you are building your code for production
+# RUN npm ci --only=production
 
-COPY car-pooling-challenge /
- 
-ENTRYPOINT [ "/car-pooling-challenge" ]
+# Bundle app source
+COPY . .
+
+EXPOSE 8080
+CMD [ "npm", "start" ]
