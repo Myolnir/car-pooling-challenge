@@ -1,6 +1,4 @@
 #!/bin/bash
 
-source $(dirname $0)/config
-
 docker-compose kill
 docker-compose down -v --remove-orphans
