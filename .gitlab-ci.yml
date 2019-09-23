@@ -1,37 +1,24 @@
 ---
 stages:
-  - build
-  - run
+  - docker
   - acceptance
 
-build:
- stage: build
- image: docker:latest
- variables:
-   DOCKER_HOST: tcp://docker:2375/
-   DOCKER_DRIVER: overlay2
-   DOCKER_TLS_CERTDIR: ""
- services:
-   - docker:dind
- script:
-   - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-   - pip install docker-compose
-   - docker-compose up -d
-   - bin/build
 
-run:
-  stage: run
-  script:
-    - bin/start
-    - bin/wait
+# build:
+#   stage: build
+#   image: # Add an image to build your service
+#   artifacts:
+#     paths:
+#       - bin/
+#   script:
+#     - echo do something to build the binary or whatever
 
 # build_image:
 #   stage: docker
 #   image: docker:latest
 #   variables:
-#     DOCKER_HOST: tcp://docker:2375/
-#    DOCKER_DRIVER: overlay2
-#    DOCKER_TLS_CERTDIR: ""
+#     DOCKER_DRIVER: overlay2
+#     DOCKER_TLS_CERTDIR: ""
 #   services:
 #     - docker:dind
 #   script:
@@ -41,8 +28,21 @@ run:
 #     - docker build . -t ${CI_REGISTRY_IMAGE}:latest
 #     - docker push ${CI_REGISTRY_IMAGE}:latest
 
-## Uncomment the acceptance step and do not remove or edit, this step is
-## required for us to accept your submission!
+docker:
+  stage: docker
+  image: docker:stable
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u ${CI_REGISTRY_USER} -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build . -t ${CI_REGISTRY_IMAGE}:latest
+    - docker push ${CI_REGISTRY_IMAGE}:latest
 
 acceptance:
   image: myolnir/car-pooling-challenge-myolnir
@@ -50,6 +50,8 @@ acceptance:
   only:
     - master
   dependencies: []
+  variables:
+    MONGO_URL: mongodb://angel_movo:ange1_movo@ds235711.mlab.com:35711/car_pooling
   services:
     - name: myolnir/car-pooling-challenge-myolnir:latest
       alias: pooling
