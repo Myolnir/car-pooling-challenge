@@ -100,7 +100,7 @@ module.exports = class Database {
   }
 
   /**
-   * Return the first available car with enough free seats for the journey.
+   * Return the first available car with enough free seats for the journey that there is not locked.
    * @param {*} param0
    * @param {minimun number of seats available} seats
    */
@@ -109,11 +109,13 @@ module.exports = class Database {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const query = {
+      locked: false,
       $and: [
         {seats: {$ne: 0}},
         {seats: {$gte: neededSeats}},
       ],
     };
+    const update = {$set: {locked: true}};
     const car = await dbClient.db('car_pooling').collection('cars').findOneAndUpdate(query, update);
     dbClient.close();
     return car.value;
@@ -136,6 +138,7 @@ module.exports = class Database {
     };
     let update = {
       $set: {
+        locked: false,
         seats: remainingSeats,
       },
     };
@@ -157,7 +160,7 @@ module.exports = class Database {
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     await dbClient.db('car_pooling').collection('cars').deleteMany({});
     await dbClient.db('car_pooling')
-      .collection('cars').insertMany(cars);
+      .collection('cars').insertMany(cars.map((car) => Object.assign({}, car, {locked: false})));
     dbClient.close();
   }
 
