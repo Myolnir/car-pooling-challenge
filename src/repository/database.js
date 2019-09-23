@@ -160,7 +160,7 @@ module.exports = class Database {
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     await dbClient.db('car_pooling').collection('cars').deleteMany({});
     await dbClient.db('car_pooling')
-      .collection('cars').insertMany(cars);
+      .collection('cars').insertMany(cars.map((car) => Object.assign({}, car, {locked: false})));
     dbClient.close();
   }
 
