@@ -57,7 +57,7 @@ module.exports = class Controller {
       }).end();
     }
     try {
-      const groupId = req.body.ID;
+      const groupId = parseInt(req.body.ID);
       const car = await this.service.locateGroup({logger}, groupId);
       if (Object.keys(car).length === 0) {
         res.status(httpStatusCodes.NO_CONTENT);
@@ -82,7 +82,7 @@ module.exports = class Controller {
       }).end();
     }
     try {
-      const groupId = req.body.ID;
+      const groupId = parseInt(req.body.ID);
       await this.service.dropOff({logger}, groupId);
       res.status(httpStatusCodes.NO_CONTENT);
       res.send().end();
