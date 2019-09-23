@@ -1,9 +1,6 @@
-const express = require('express');
-const router = express.Router();
+/* Routes catalog home page. */
+const catalog = require('./catalog');
+module.exports = (server) => {
 
-/* GET home page. */
-router.get('/', (req, res) => {
-  res.redirect('/catalog');
-});
-
-module.exports = router;
+  catalog(server);
+};

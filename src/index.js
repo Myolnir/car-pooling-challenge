@@ -1,38 +1,34 @@
-const express = require('express');
-const createError = require('http-errors');
-const cookieParser = require('cookie-parser');
-const catalog = require('./routes/catalog');
 const container = require('./boot');
 const config = container.resolve('config');
-const bodyParser = require('body-parser');
+const restify = require('restify');
+const restifyPlugins = require('restify-plugins');
+const route_catalog = require('./routes/index');
+const logger = require('./util/logger');
 
-const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
-app.use('/', catalog);
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createError(404));
+const server = restify.createServer({
+  name: config.name,
+  version: config.version,
 });
-// error handler
-app.use((err, req, res) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+/**
+ * Middleware
+ */
+// Extend logger using the plugin.
+server.use(restifyPlugins.requestLogger());
+server.use(restifyPlugins.jsonBodyParser({mapParams: true}));
+server.use(restifyPlugins.acceptParser(server.acceptable));
+server.use(restifyPlugins.queryParser({mapParams: true}));
+server.use(restifyPlugins.fullResponse());
+server.listen(config.port, () => {
+  logger.debug('test logger');
+  console.log('%s listening at %s', server.name, server.address().port);
+  route_catalog(server);
 });
-
+/*
 const server = app.listen(config.port, () => {
   const host = server.address().address;
   const port = config.port;
 
   console.log(`App listening at http://${host}:${port}`);
 });
+ */

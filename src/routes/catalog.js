@@ -1,18 +1,15 @@
-const express = require('express');
-const router = express.Router();
 const container = require('../boot');
 
 // Require controller modules.
 const controller = container.resolve('controller');
 
-router.get('/status', (req, res) => res.status(200).send());
-
-router.post('/journey', controller.createJourney.bind(controller));
-
-router.put('/cars', controller.createCars.bind(controller));
-
-router.post('/locate', controller.locateGroup.bind(controller));
-
-router.post('/dropoff', controller.dropOff.bind(controller));
-
-module.exports = router;
+module.exports = (server) => {
+  server.get('/status', (req, res, next) => {
+    res.status(200);
+    res.send();
+  });
+  server.post('/journey', controller.createJourney.bind(controller));
+  server.put('/cars', controller.createCars.bind(controller));
+  server.post('/locate', controller.locateGroup.bind(controller));
+  server.post('/dropoff', controller.dropOff.bind(controller));
+};
