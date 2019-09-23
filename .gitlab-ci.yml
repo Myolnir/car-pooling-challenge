@@ -22,7 +22,7 @@ build:
 run:
   stage: run
   script:
-    - bin/run
+    - bin/start
     - bin/wait
 
 # build_image:
