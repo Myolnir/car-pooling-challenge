@@ -1,38 +1,27 @@
 ---
 stages:
   - build
-  - docker
+  - run
   - acceptance
 
-remove_me:
-  stage: build
+build:
+ stage: build
+ script:
+   - bin/build
+
+run:
+  stage: run
   script:
-  - >
-     echo If you can see this you know that gitlab-ci is running.  You should
-     uncomment the sections that enable building the docker image and running
-     the acceptance tests.
-     Change any file as necessary to make tests pass in your language of
-     choice.  But be mindful that we will only accept challenges that are
-     passing acceptance.  Good luck!
-
-## Uncomment the following sections to enable docker, image building and
-## acceptance
-
-# build:
-#   stage: build
-#   image: # Add an image to build your service
-#   artifacts:
-#     paths:
-#       - bin/
-#   script:
-#     - echo do something to build the binary or whatever
+    - bin/run
+    - bin/wait
 
 # build_image:
 #   stage: docker
 #   image: docker:latest
 #   variables:
-#     DOCKER_DRIVER: overlay2
-#     DOCKER_TLS_CERTDIR: ""
+#     DOCKER_HOST: tcp://docker:2375/
+#    DOCKER_DRIVER: overlay2
+#    DOCKER_TLS_CERTDIR: ""
 #   services:
 #     - docker:dind
 #   script:
@@ -45,14 +34,14 @@ remove_me:
 ## Uncomment the acceptance step and do not remove or edit, this step is
 ## required for us to accept your submission!
 
-# acceptance:
-#   image: cabify/challenge:latest
-#   stage: acceptance
-#   only: 
-#     - master
-#   dependencies: []
-#   services:
-#     - name: ${CI_REGISTRY_IMAGE}:latest
-#       alias: pooling
-#   script:
-#     - /harness --address http://pooling:9091 acceptance
+acceptance:
+  image: myolnir/car-pooling-challenge-myolnir
+  stage: acceptance
+  only:
+    - master
+  dependencies: []
+  services:
+    - name: myolnir/car-pooling-challenge-myolnir:latest
+      alias: pooling
+  script:
+    - /harness --address http://pooling:9091 acceptance

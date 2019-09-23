@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Wait for all docker-compose services to be up and running
+# For services which only run once, wait until exit code is != 1
+
+timeout=300
+start_time=$(date +%s)
+deadline=$((${start_time} + ${timeout}))
+while true; do
+  output=$(docker-compose ps | grep -E 'Up \(health: starting\)|Exit 1')
+  if [ -z "$output" ]; then
+    break
+  elif [ $(date +%s) -ge ${deadline} ]; then
+    echo "Timeout after ${timeout}s"
+    docker-compose ps
+    exit 1
+  fi
+  sleep 1
+done

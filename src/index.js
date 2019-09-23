@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const catalog = require('./routes/catalog');
 const container = require('./boot');
 const config = container.resolve('config');
-const logger = require('./util/logger');
 const bodyParser = require('body-parser');
 
 const app = express();
