@@ -4,6 +4,8 @@ services:
   mongo:
     container_name: mongo
     image: mongo
+    env_file:
+      - config/production.env
     networks:
       - local
     volumes:
@@ -14,6 +16,8 @@ services:
   car-pooling-challenge:
     container_name: car-pooling-challenge
     build: .
+    env_file:
+      - config/production.env
     networks:
       - local
     ports:

@@ -33,7 +33,7 @@ app.use((err, req, res) => {
 
 const server = app.listen(config.port, () => {
   const host = server.address().address;
-  const port = server.address().port;
+  const port = config.port;
 
   console.log(`App listening at http://${host}:${port}`);
 });
