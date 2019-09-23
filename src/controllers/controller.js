@@ -8,10 +8,10 @@ module.exports = class Controller {
 
   async createJourney (req, res) {
     logger.info('Post method');
-    if (req.body === undefined || req.body === null) {
+    if (req.body === undefined || req.body === null || req.headers['content-type'] !== 'application/json') {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
-        error: 'Payload is required and must be an object',
+        error: 'Your payload or headers are not correct',
       }).end();
     }
     try {
@@ -29,10 +29,10 @@ module.exports = class Controller {
   }
 
   async createCars (req, res) {
-    if (req.body === undefined || req.body === null) {
+    if (req.body === undefined || req.body === null || req.headers['content-type'] !== 'application/json') {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
-        error: 'Payload is required and must be an object',
+        error: 'Your payload or headers are not correct',
       }).end();
     }
     try {
@@ -53,7 +53,7 @@ module.exports = class Controller {
     if (req.body === undefined || req.body === null || req.body.ID === undefined || req.body.ID === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
-        error: 'Payload is required and must be an object ',
+        error: 'Your payload or headers are not correct',
       }).end();
     }
     try {
@@ -78,7 +78,7 @@ module.exports = class Controller {
     if (req.body === undefined || req.body === null || req.body.ID === undefined || req.body.ID === null) {
       res.status(httpStatusCodes.BAD_REQUEST);
       res.send({
-        error: 'Payload is required and must be an object',
+        error: 'Your payload or headers are not correct',
       }).end();
     }
     try {

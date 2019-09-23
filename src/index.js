@@ -15,9 +15,10 @@ const server = restify.createServer({
  */
 // Extend logger using the plugin.
 server.use(restifyPlugins.requestLogger());
-server.use(restifyPlugins.jsonBodyParser({mapParams: true}));
+server.use(restifyPlugins.jsonBodyParser());
+server.use(restifyPlugins.urlEncodedBodyParser());
 server.use(restifyPlugins.acceptParser(server.acceptable));
-server.use(restifyPlugins.queryParser({mapParams: true}));
+server.use(restifyPlugins.queryParser());
 server.use(restifyPlugins.fullResponse());
 server.listen(config.port, () => {
   logger.debug('test logger');
