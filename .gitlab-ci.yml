@@ -53,5 +53,4 @@ acceptance:
     - name: ${CI_REGISTRY_IMAGE}:latest
       alias: pooling
   script:
-    - docker login -u ${CI_REGISTRY_USER} -p $CI_JOB_TOKEN $CI_REGISTRY
     - /harness --address http://pooling:9091 acceptance
