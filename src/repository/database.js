@@ -164,4 +164,13 @@ module.exports = class Database {
     dbClient.close();
   }
 
+  async removeCarFromJourney({logger}, journeyId) {
+    const dbClient = await mongoClient 
+      .connect(this.config.mongo.url, { useUnifiedTopology: true, useNewUrlParser: true });
+    const query = {id: journeyId};
+    const update = {$unset: {car_id: '', journey_initiated: ''}};
+    await dbClient.db('car_pooling').collection('journeys').findOneAndUpdate(query, update);
+    dbClient.close();
+  }
+
 };

@@ -47,6 +47,11 @@ module.exports = class Service {
 
   /**
    * Retries all journeys without car assigned, this will happen when a journey has finished by a dropOff.
+   * On the first approach of my service I assume that when we drop off a journey those people are deleted from the database
+   * once deleted I tried to assign the car that just to drop off people to assign to other people, with the approach
+   * of only remove the car from journey object I cannot do that.
+   * To enable again this functionality you just to uncomment from dropOff function the two commented lines and comment the 
+   * line await this.database.removeCarFromJourney({logger}, journey.id);
    * @param {*} param0
    */
   async retryJourneysWithoutCarsAssigned ({logger}) {
@@ -81,8 +86,7 @@ module.exports = class Service {
   }
 
   /**
-   * Drops off an existing journey, after drop off update the car with the new available seats and journeys and also
-   * try to retry the journeys without car assigned to check if there is now any car available for these journeys.
+   * Drops off an existing journey, after drop off update the car with the new available seats and journeys.
    * @param logger
    * @param groupId
    * @returns {Promise<void>}
@@ -90,12 +94,13 @@ module.exports = class Service {
   async dropOff ({logger}, groupId) {
     const journey = await this.database.findJourneyById({logger}, groupId);
     if (journey) {
-      await this.database.deleteJourney({logger}, journey.id);
+      //await this.database.deleteJourney({logger}, journey.id);
+      await this.database.removeCarFromJourney({logger}, journey.id);
       if (journey.car_id) {
         const car = await this.database.findCarById({logger}, journey.car_id);
         const remainingSeats = car.seats + journey.people;
         await this.database.updateCarForJourney({logger}, car.id, journey.id, remainingSeats, true);
-        await this.retryJourneysWithoutCarsAssigned({logger});
+        //await this.retryJourneysWithoutCarsAssigned({logger});
       }
     } else {
       logger.error(`The journey with this id ${groupId} does not exists`);
