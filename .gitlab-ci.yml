@@ -45,11 +45,10 @@ docker:
     - docker push ${CI_REGISTRY_IMAGE}:latest
 
 acceptance:
-  image: myolnir/car-pooling-challenge-myolnir
+  image: cabify/challenge:latest
   stage: acceptance
   only:
     - master
-  dependencies: []
   variables:
     MONGO_URL: mongodb://angel_movo:ange1_movo@ds235711.mlab.com:35711/car_pooling
   services:
