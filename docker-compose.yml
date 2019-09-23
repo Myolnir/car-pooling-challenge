@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    networks:
+      - local
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+
+  car-pooling-challenge:
+    container_name: car-pooling-challenge
+    build: .
+    networks:
+      - local
+    ports:
+      - 3000:3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/status"]
+      interval: 2m
+      timeout: 1m
+      retries: 5
+    depends_on:
+      - mongo
+
+networks:
+  local:
+    external: false
+    name: local

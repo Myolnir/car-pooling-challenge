@@ -1,6 +1,7 @@
 module.exports = {
   port: 3000,
   mongo: {
-    url: 'mongodb://denizen:denizen@localhost:37017/carPooling?authSource=admin',
+    //url: 'mongodb://angel_movo:ange1_movo@ds235711.mlab.com:35711/car_pooling',
+    url: 'mongodb://mongo:27017/car_pooling',
   },
 };

@@ -17,7 +17,7 @@ module.exports = class Database {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const journeyWithProperUuid = Object.assign({}, journey, {id: uuid.v1()});
-    const journeySaved = await dbClient.db('carPooling').collection('journeys')
+    const journeySaved = await dbClient.db('car_pooling').collection('journeys')
       .insertOne(journeyWithProperUuid);
     dbClient.close();
     return journeySaved.ops[0];
@@ -35,7 +35,7 @@ module.exports = class Database {
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     const query = {id: journey.id};
     const update = {$set: {car_id: carId, journey_initiated: new Date()}};
-    const journeySaved = await dbClient.db('carPooling').collection('journeys')
+    const journeySaved = await dbClient.db('car_pooling').collection('journeys')
       .findOneAndUpdate(query, update);
     dbClient.close();
     return journeySaved.value;
@@ -50,7 +50,7 @@ module.exports = class Database {
   async findJourneysWithoutCarAssigned ({logger}) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
-    const journeys = await dbClient.db('carPooling').collection('journeys').find().toArray();
+    const journeys = await dbClient.db('car_pooling').collection('journeys').find().toArray();
     dbClient.close();
     return journeys;
 
@@ -65,7 +65,7 @@ module.exports = class Database {
   async findJourneyById ({logger}, id) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
-    const journey = await dbClient.db('carPooling').collection('journeys').findOne({id});
+    const journey = await dbClient.db('car_pooling').collection('journeys').findOne({id});
     dbClient.close();
     return journey;
   }
@@ -79,7 +79,7 @@ module.exports = class Database {
   async findCarById ({logger}, id) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
-    const car = await dbClient.db('carPooling').collection('cars').findOne({id});
+    const car = await dbClient.db('car_pooling').collection('cars').findOne({id});
     dbClient.close();
     return car;
   }
@@ -93,9 +93,9 @@ module.exports = class Database {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     if (id) {
-      await dbClient.db('carPooling').collection('journeys').deleteOne({id});
+      await dbClient.db('car_pooling').collection('journeys').deleteOne({id});
     } else {
-      await dbClient.db('carPooling').collection('journeys').deleteMany({});
+      await dbClient.db('car_pooling').collection('journeys').deleteMany({});
     }
 
     dbClient.close();
@@ -118,7 +118,7 @@ module.exports = class Database {
       ],
     };
     const update = {$set: {locked: true}};
-    const car = await dbClient.db('carPooling').collection('cars').findOneAndUpdate(query, update);
+    const car = await dbClient.db('car_pooling').collection('cars').findOneAndUpdate(query, update);
     dbClient.close();
     return car.value;
   }
@@ -147,7 +147,7 @@ module.exports = class Database {
     update = dropOff
       ? Object.assign({}, update, {$pull: {journeys: {journey_id: journeyId}}})
       : Object.assign({}, update, {$push: {journeys: {journey_id: journeyId}}});
-    await dbClient.db('carPooling').collection('cars').findOneAndUpdate(query, update);
+    await dbClient.db('car_pooling').collection('cars').findOneAndUpdate(query, update);
     dbClient.close();
   }
 
@@ -160,8 +160,8 @@ module.exports = class Database {
   async createCars ({logger}, cars) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
-    await dbClient.db('carPooling').collection('cars').deleteMany({});
-    await dbClient.db('carPooling')
+    await dbClient.db('car_pooling').collection('cars').deleteMany({});
+    await dbClient.db('car_pooling')
       .collection('cars').insertMany(cars.map((car) => Object.assign({}, car, {locked: false}, {id: uuid.v1()})));
     dbClient.close();
   }
