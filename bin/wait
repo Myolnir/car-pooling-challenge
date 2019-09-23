@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Wait for all docker-compose services to be up and running
 # For services which only run once, wait until exit code is != 1
