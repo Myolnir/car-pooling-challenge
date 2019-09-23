@@ -1,5 +1,4 @@
 const mongoClient = require('mongodb').MongoClient;
-const uuid = require('uuid');
 module.exports = class Database {
 
   constructor ({config}) {
@@ -16,9 +15,8 @@ module.exports = class Database {
   async createJourney ({logger}, journey) {
     const dbClient = await mongoClient
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
-    const journeyWithProperUuid = Object.assign({}, journey, {id: uuid.v1()});
     const journeySaved = await dbClient.db('car_pooling').collection('journeys')
-      .insertOne(journeyWithProperUuid);
+      .insertOne(journey);
     dbClient.close();
     return journeySaved.ops[0];
   }
@@ -162,7 +160,7 @@ module.exports = class Database {
       .connect(this.config.mongo.url, {useUnifiedTopology: true, useNewUrlParser: true});
     await dbClient.db('car_pooling').collection('cars').deleteMany({});
     await dbClient.db('car_pooling')
-      .collection('cars').insertMany(cars.map((car) => Object.assign({}, car, {locked: false}, {id: uuid.v1()})));
+      .collection('cars').insertMany(cars);
     dbClient.close();
   }
 
