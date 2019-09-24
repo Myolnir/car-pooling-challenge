@@ -177,3 +177,53 @@ quasi real work environment.
 :warning: Avoid dependencies and tools that would require changes to the 
 `acceptance` step of [.gitlab-ci.yml](./.gitlab-ci.yml), such as 
 `docker-compose`
+
+## How To Istall
+
+### Language & Libraries
+
+First of all, make sure you have NodeJS installed by covering the official [installation guide](https://nodejs.org/en/download/) on your machine.
+
+Once you have it, you can install and compile all dependencies by running on the project folder:
+
+    npm run install
+
+Additionally you can run the unit tests
+
+    npm run test
+
+### Database
+
+Ensure you have `MongoDB` available on your machine. You can use either a [local installation](https://docs.mongodb.com/manual/installation/) or a [Docker distribution](https://hub.docker.com/_/mongo).
+
+### Server
+
+To start the application node server, run:
+
+    npm start
+
+Now you can create request to [`localhost:9091`](http://localhost:9091) curl / postman....
+
+## Production
+
+To prepare you application for production, you can use [`Dockerfile`](Dockerfile) for that. It will require you have [`Docker` installed locally](https://docs.docker.com/install/).
+
+To build a `Docker` image, execute the following command:
+
+    docker build . -t car_pooling:latest
+
+Once built, you are able to push it to a remote repository as:
+
+    docker push car_pooling:latest
+
+It assumes you are authorized and logged in to a [`Docker` registry](https://docs.docker.com/registry/).
+
+# Development Notes
+
+On a different approach for a DropOff if for any reason when we do a drop off we delete the journey and release the seats on the car, I've implemented a
+retry system that after releasing a car from its passengers it will retry all journeys that don't have a car assigned and checks if
+after the release of the latest car some of them can be relocated on a car.
+
+I reverted these changes (there are some comments on the code to enable again) because apparently of your tests
+when a dropOff is made the journey shouldn't be deleted (from my point of view, this is not very clear on your documentation), so, my approach 
+didn't pass all of your tests.
