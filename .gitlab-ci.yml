@@ -10,7 +10,6 @@ docker:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
-    MONGO_URL: mongodb://angel_movo:ange1_movo@ds235711.mlab.com:35711/car_pooling
   services:
     - docker:dind
   before_script:
@@ -25,8 +24,6 @@ acceptance:
   stage: acceptance
   only:
     - master
-  variables:
-    MONGO_URL: mongodb://angel_movo:ange1_movo@ds235711.mlab.com:35711/car_pooling
   services:
     - name: ${CI_REGISTRY_IMAGE}:latest
       alias: pooling
