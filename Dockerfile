@@ -16,7 +16,7 @@ RUN apt-get install -y supervisor && \
   mkdir -p /var/log/supervisor && \
   mkdir -p /etc/supervisor/conf.d
 
-RUN npm ci --only=production
+RUN npm install
 
 RUN mkdir -p /var/log/supervisor && \
  mkdir -p /data/db
