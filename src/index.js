@@ -21,15 +21,15 @@ server.use(restifyPlugins.urlEncodedBodyParser());
 server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser());
 server.use(restifyPlugins.fullResponse());
-
-server.listen(config.port, () => {
-  logger.debug('test logger');
-  mongo.start({dbName: 'car_pooling'}).then(url => {
-    console.log('mongo is started: ', url);
+mongo.start({dbName: 'car_pooling'}).then(url => {
+  console.log('fake mongo is started: ', url);
+  server.listen(config.port, () => {
+    logger.debug('test logger');
+    console.log('%s listening at %s', server.name, server.address().port);
+    route_catalog(server);
   });
-  console.log('%s listening at %s', server.name, server.address().port);
-  route_catalog(server);
 });
+
 /*
 const server = app.listen(config.port, () => {
   const host = server.address().address;
