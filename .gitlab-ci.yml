@@ -27,7 +27,5 @@ acceptance:
   services:
     - name: ${CI_REGISTRY_IMAGE}:latest
       alias: pooling
-    - name: mongo:latest
-      alias: mongo
   script:
     - /harness --address http://pooling:9091 acceptance
