@@ -120,12 +120,12 @@ describe('car pool service tests', () => {
     const groupIdDropOff = 1;
     const journeys = [{
       'id': '57550160-dbd0-11e9-a12c-ad42b04eeec7',
-      'people': 2
+      'people': 2,
     },
-      {
-        'id': '67550160-dbd0-11e9-a12c-ad42b04eeec7',
-        'people': 1
-      }];
+    {
+      'id': '67550160-dbd0-11e9-a12c-ad42b04eeec7',
+      'people': 1,
+    }];
 
     it('should drop off the journey when the group is located and should retry journeys without cars assigned', async () => {
       database.findJourneyById.mockReturnValueOnce(journeyWithCar);
@@ -142,33 +142,33 @@ describe('car pool service tests', () => {
     it('should drop off the journey when the group is located ' +
       'and should retry journeys without cars assigned but they cannot be retried because' +
       'there are not car available',
-      async () => {
-        database.findJourneyById.mockReturnValueOnce(journeyWithCar);
-        database.findCarById.mockReturnValueOnce(car);
-        database.findJourneysWithoutCarAssigned.mockReturnValueOnce(journeys);
-        database.getAvailableCarForPeople.mockReturnValueOnce(undefined);
-        database.updateJourney.mockReturnValueOnce(journey);
-        await service.dropOff({logger}, groupIdDropOff);
-        expect(database.findJourneyById).toHaveBeenCalledTimes(1);
-        expect(database.findCarById).toHaveBeenCalledTimes(1);
-        expect(database.updateCarForJourney).toHaveBeenCalledTimes(1);
-        expect(database.updateJourney).toHaveBeenCalledTimes(0);
-        expect(database.removeCarFromJourney).toHaveBeenCalledTimes(1);
-      });
+    async () => {
+      database.findJourneyById.mockReturnValueOnce(journeyWithCar);
+      database.findCarById.mockReturnValueOnce(car);
+      database.findJourneysWithoutCarAssigned.mockReturnValueOnce(journeys);
+      database.getAvailableCarForPeople.mockReturnValueOnce(undefined);
+      database.updateJourney.mockReturnValueOnce(journey);
+      await service.dropOff({logger}, groupIdDropOff);
+      expect(database.findJourneyById).toHaveBeenCalledTimes(1);
+      expect(database.findCarById).toHaveBeenCalledTimes(1);
+      expect(database.updateCarForJourney).toHaveBeenCalledTimes(1);
+      expect(database.updateJourney).toHaveBeenCalledTimes(0);
+      expect(database.removeCarFromJourney).toHaveBeenCalledTimes(1);
+    });
 
     it('should drop off the journey when the group is located ' +
       'and should not retry journeys without cars assigned because there are not any journey waiting for a car',
-      async () => {
-        database.findJourneyById.mockReturnValueOnce(journeyWithCar);
-        database.findCarById.mockReturnValueOnce(car);
-        database.findJourneysWithoutCarAssigned.mockReturnValueOnce([]);
-        await service.dropOff({logger}, groupIdDropOff);
-        expect(database.findJourneyById).toHaveBeenCalledTimes(1);
-        expect(database.findCarById).toHaveBeenCalledTimes(1);
-        expect(database.updateCarForJourney).toHaveBeenCalledTimes(1);
-        expect(database.getAvailableCarForPeople).toHaveBeenCalledTimes(0);
-        expect(database.updateJourney).toHaveBeenCalledTimes(0);
-      });
+    async () => {
+      database.findJourneyById.mockReturnValueOnce(journeyWithCar);
+      database.findCarById.mockReturnValueOnce(car);
+      database.findJourneysWithoutCarAssigned.mockReturnValueOnce([]);
+      await service.dropOff({logger}, groupIdDropOff);
+      expect(database.findJourneyById).toHaveBeenCalledTimes(1);
+      expect(database.findCarById).toHaveBeenCalledTimes(1);
+      expect(database.updateCarForJourney).toHaveBeenCalledTimes(1);
+      expect(database.getAvailableCarForPeople).toHaveBeenCalledTimes(0);
+      expect(database.updateJourney).toHaveBeenCalledTimes(0);
+    });
 
     it('should throw an exception when the group is not found', async () => {
       database.findJourneyById.mockReturnValueOnce(undefined);
