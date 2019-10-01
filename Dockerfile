@@ -1,5 +1,7 @@
 FROM node:10
 
+ARG mongo_version=3.4.14
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -8,10 +10,14 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN npm install -g mongodb-download
+
+RUN mongodb-download --version=${mongo_version}
 
 # Bundle app source
-COPY . .
+COPY package.json /usr/src/app/package.json
+RUN npm install
+COPY . . 
 
 EXPOSE 9091
 CMD [ "npm", "start" ]
