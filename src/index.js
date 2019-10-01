@@ -4,7 +4,6 @@ const restify = require('restify');
 const restifyPlugins = require('restify-plugins');
 const route_catalog = require('./routes/index');
 const logger = require('./util/logger');
-const mongo = require('mongo-unit');
 
 
 const server = restify.createServer({
@@ -21,20 +20,8 @@ server.use(restifyPlugins.urlEncodedBodyParser());
 server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser());
 server.use(restifyPlugins.fullResponse());
-mongo.start({dbName: 'car_pooling'}).then(url => {
-  console.log('fake mongo is started: ', url);
-  server.listen(config.port, () => {
-    logger.debug('test logger');
-    console.log('%s listening at %s', server.name, server.address().port);
-    route_catalog(server);
-  });
+server.listen(config.port, () => {
+  logger.debug('test logger');
+  console.log('%s listening at %s', server.name, server.address().port);
+  route_catalog(server);
 });
-
-/*
-const server = app.listen(config.port, () => {
-  const host = server.address().address;
-  const port = config.port;
-
-  console.log(`App listening at http://${host}:${port}`);
-});
- */
