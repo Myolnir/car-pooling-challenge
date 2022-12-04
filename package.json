@@ -41,7 +41,7 @@
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
     "jest-html-reporter": "^2.5.0",
-    "jsdoc": "^3.6.3",
+    "jsdoc": "^3.6.11",
     "jsdoc-to-markdown": "^5.0.0",
     "rimraf": "^2.6.3"
   }
